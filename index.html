@@ -669,10 +669,11 @@ function roll(p,lucky){
 function rollFoil(lucky){const m=(1+.035*S.up.luck)*(1+.12*S.up.foil)*(lucky?2:1),r=Math.random(),pp=Math.min(.001*m,.01),pb=Math.min(.005*m,.05);return r<pp?2:r<pp+pb?1:0}
 function sparks(host,n,col){if(!host)return;for(let i=0;i<n;i++){const a=Math.random()*6.283,d=70+Math.random()*140,e=document.createElement('i');e.className='sp';e.textContent='✦';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--s:${.6+Math.random()*1.1};color:${col}`;host.appendChild(e);setTimeout(()=>e.remove(),1100)}}
 function otick(){if(!OS||OS.ph!=='face'||!OS.st)return;const cd=$('#ocard');if(cd)step(OS.st,cd);OS.st.raf=requestAnimationFrame(otick)}
-let OS=null,px=null,py=0,ld=0,AUTO_ROLL=false;
+let OS=null,px=null,py=0,ld=0,AUTO_ROLL=false,AUTO_PACK=null;
 const O=$('#open');
 function autoStep(fn,delay){if(OS?.auto){clearTimeout(OS.autoTimer);OS.autoTimer=setTimeout(()=>{if(OS?.auto)fn()},delay)}}
-function toggleAutoRoll(){AUTO_ROLL=!AUTO_ROLL;if(OS){OS.auto=AUTO_ROLL;if(AUTO_ROLL){if(OS.ph==='pack')autoStep(tear,250);else if(OS.ph==='back')autoStep(showFace,250);else if(OS.ph==='face')autoStep(next,1600)}else clearTimeout(OS.autoTimer)}sfx.click();msg(AUTO_ROLL?'Rolagem automática ativada.':'Rolagem automática desativada.')}
+function toggleAutoRoll(){AUTO_ROLL=!AUTO_ROLL;if(OS){OS.auto=AUTO_ROLL;if(AUTO_ROLL){if(OS.ph==='pack')autoStep(tear,250);else if(OS.ph==='back')autoStep(showFace,250);else if(OS.ph==='face')autoStep(next,1600);else if(OS.ph==='sum')autoStep(autoContinue,250)}else clearTimeout(OS.autoTimer)}sfx.click();msg(AUTO_ROLL?'Rolagem automática ativada.':'Rolagem automática desativada.')}
+function autoContinue(){if(!OS||!OS.auto||AUTO_PACK===null)return;const p=PACKS[AUTO_PACK],cost=packCost(p);if(S.coins<cost){$('#ohint').textContent='Aguardando moedas para o próximo pacote. S+Ç+P para parar.';autoStep(autoContinue,1000);return}act.oclose();act.open({dataset:{i:String(AUTO_PACK)}})}
 function openFx(p,cards,fresh,lucky,fv,fn){
   OS={cards,fresh,fv:fv||[],fn:fn||[],i:0,ph:'pack',auto:AUTO_ROLL,autoTimer:null};
   O.hidden=false;
@@ -693,7 +694,7 @@ function showFace(){
   $('#ohint').textContent='Arraste a carta para girar.';autoStep(next,1600)
 }
 function next(){sfx.click();if(OS.i<OS.cards.length-1){OS.i++;showBack()}else summary()}
-function summary(){clearTimeout(OS.autoTimer);sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.'}
+function summary(){clearTimeout(OS.autoTimer);sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.';autoStep(autoContinue,1800)}
 function oTap(){if(OS&&OS.ph==='back')showFace()}
 O.addEventListener('pointerdown',e=>{if(OS&&OS.ph==='pack'){px=e.clientX;py=e.clientY;ld=0}});
 O.addEventListener('pointermove',e=>{const t=document.querySelector('.pkTop');if(px!==null&&(e.buttons!==1||!OS||OS.ph!=='pack')){px=null;if(t&&OS&&OS.ph==='pack')t.style.transform='';return}if(px!==null&&t){const d=e.clientX-px;ld=d;t.style.transform=`translateX(${d}px) rotate(${d/12}deg)`;if(Math.abs(d)>=45)tear()}});
@@ -1259,6 +1260,7 @@ const act={
   open(e){
     const p=PACKS[+e.dataset.i],cost=packCost(p);
     if(S.coins<cost){sfx.err();return msg('Faltam '+fmt(cost-S.coins)+' moedas para este pacote.')}
+    AUTO_PACK=+e.dataset.i;
     S.coins-=cost;
     const lucky=(S.packs+1)%LUCKY===0;S.packs++;
     const packSize=3+S.up.pack,base=Array.from({length:packSize},()=>roll(p,lucky)),fv=base.map(()=>rollFoil(lucky));
