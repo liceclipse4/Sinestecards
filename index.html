@@ -669,18 +669,20 @@ function roll(p,lucky){
 function rollFoil(lucky){const m=(1+.035*S.up.luck)*(1+.12*S.up.foil)*(lucky?2:1),r=Math.random(),pp=Math.min(.001*m,.01),pb=Math.min(.005*m,.05);return r<pp?2:r<pp+pb?1:0}
 function sparks(host,n,col){if(!host)return;for(let i=0;i<n;i++){const a=Math.random()*6.283,d=70+Math.random()*140,e=document.createElement('i');e.className='sp';e.textContent='✦';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--s:${.6+Math.random()*1.1};color:${col}`;host.appendChild(e);setTimeout(()=>e.remove(),1100)}}
 function otick(){if(!OS||OS.ph!=='face'||!OS.st)return;const cd=$('#ocard');if(cd)step(OS.st,cd);OS.st.raf=requestAnimationFrame(otick)}
-let OS=null,px=null,py=0,ld=0;
+let OS=null,px=null,py=0,ld=0,AUTO_ROLL=false;
 const O=$('#open');
+function autoStep(fn,delay){if(OS?.auto){clearTimeout(OS.autoTimer);OS.autoTimer=setTimeout(()=>{if(OS?.auto)fn()},delay)}}
+function toggleAutoRoll(){AUTO_ROLL=!AUTO_ROLL;if(OS){OS.auto=AUTO_ROLL;if(AUTO_ROLL){if(OS.ph==='pack')autoStep(tear,250);else if(OS.ph==='back')autoStep(showFace,250);else if(OS.ph==='face')autoStep(next,1600)}else clearTimeout(OS.autoTimer)}sfx.click();msg(AUTO_ROLL?'Rolagem automática ativada.':'Rolagem automática desativada.')}
 function openFx(p,cards,fresh,lucky,fv,fn){
-  OS={cards,fresh,fv:fv||[],fn:fn||[],i:0,ph:'pack'};
+  OS={cards,fresh,fv:fv||[],fn:fn||[],i:0,ph:'pack',auto:AUTO_ROLL,autoTimer:null};
   O.hidden=false;
   OS.bk=p.back||null;const hc=p.cover?' has':'';
   $('#stage').innerHTML=`<div class="op${lucky?' gold':''}${hc}" id="op" ${p.cover?`style="--cv:url('${p.cover}')"`:''}><div class="pkTop${hc}"></div><div class="pkBody${hc}">${p.cover?'':`<span>${p.g}</span><b>${p.n}</b>`}</div></div>`;
   $('#ohint').textContent=(lucky?'Pacote da sorte! ':'')+'Toque no pacote ou deslize para rasgar.';
-  O.focus();
+  O.focus();autoStep(tear,700);
 }
 function tear(){if(!OS||OS.ph!=='pack')return;px=null;OS.ph='tear';const dir=ld<0?-1:1,tp=document.querySelector('.pkTop');const op=$('#op'),mx=Math.max(...OS.cards.map(c=>c.r));op.classList.add('torn');const fl=document.createElement('div');fl.className='flash';fl.style.setProperty('--fc',R[mx].col);op.appendChild(fl);sparks(op,10+mx*6,R[mx].col);sfx.rip();setTimeout(()=>sfx.burst(mx),140);if(tp)tp.style.transform=`translate(${ld+dir*320}px,-90px) rotate(${dir*35}deg)`;setTimeout(showBack,700)}
-function showBack(){if(OS.st)cancelAnimationFrame(OS.st.raf);for(let j=0;j<OS.cards.length-OS.i;j++)setTimeout(sfx.deal,j*80);OS.ph='back';const n=OS.cards.length-OS.i;$('#stage').innerHTML='<div class="stack">'+Array.from({length:n},(_,j)=>`<div class="cb${OS.bk?' img':''}" style="--k:${n-1-j};animation-delay:${j*.08}s${OS.bk?`;--bk:url('${OS.bk}')`:''}">${OS.bk?'':'<span>✦</span>'}</div>`).join('')+'</div>';$('#ohint').textContent=(OS.i?'':'Suas cartas saíram do pacote! ')+'Toque para revelar a carta '+(OS.i+1)+' de '+OS.cards.length+'.'}
+function showBack(){if(OS.st)cancelAnimationFrame(OS.st.raf);for(let j=0;j<OS.cards.length-OS.i;j++)setTimeout(sfx.deal,j*80);OS.ph='back';const n=OS.cards.length-OS.i;$('#stage').innerHTML='<div class="stack">'+Array.from({length:n},(_,j)=>`<div class="cb${OS.bk?' img':''}" style="--k:${n-1-j};animation-delay:${j*.08}s${OS.bk?`;--bk:url('${OS.bk}')`:''}">${OS.bk?'':'<span>✦</span>'}</div>`).join('')+'</div>';$('#ohint').textContent=(OS.i?'':'Suas cartas saíram do pacote! ')+'Toque para revelar a carta '+(OS.i+1)+' de '+OS.cards.length+'.';autoStep(showFace,550)}
 function showFace(){
   const c=OS.cards[OS.i],r=R[c.r],last=OS.i>=OS.cards.length-1;OS.ph='face';
   if(OS.st)cancelAnimationFrame(OS.st.raf);
@@ -688,10 +690,10 @@ function showFace(){
   $('#stage').innerHTML=`<div class="vscene ofc${c.fg?' herox':''}" data-v="${v}" style="--rc:${r.col}"><div class="vglow"></div><div class="vcard" id="ocard"><div class="vf${c.fg?' hv':''}">${front}</div><div class="vf vb" style="background-image:${OS.bk?`url('${OS.bk}')`:'none'}"></div></div></div><div class="vinfo"><h2>${c.n}</h2><p>${v?`<b class="vlab vl${v}">${FI[v]} ${FN[v]}</b> `:''}${OS.fresh[OS.i]?'✨ Nova! ':OS.fn[OS.i]?'✨ Nova versão! ':''}<span style="color:var(--rc)">${SYM[c.r]}</span> ${r.n}</p></div><button data-act="onext">${last?'Ver resumo':'Próxima carta'}</button>`;
   addEdges($('#ocard'));setTimeout(()=>{const o=$('#ocard');o&&o.classList.add('pop3')},500);sfx.flip();OS.st={rx:0,ry:180,vy:-(11+(c.r>=2?21.6:0)),drag:false,lx:0,ly:0};otick();
   setTimeout(()=>{if(OS&&OS.ph==='face'&&OS.cards[OS.i]===c){sparks($('.ofc'),6+c.r*8+(v?16:0),v===2?'#9fe8ff':v===1?'#ffe7a8':r.col);sfx.reveal(c.r,OS.fresh[OS.i]);if(v)snd((cx,t)=>[6,8,10].forEach((k,i)=>bell(cx,t+.15+i*.08,PENT[k],.08*v,.9)))}},650);
-  $('#ohint').textContent='Arraste a carta para girar.';
+  $('#ohint').textContent='Arraste a carta para girar.';autoStep(next,1600)
 }
 function next(){sfx.click();if(OS.i<OS.cards.length-1){OS.i++;showBack()}else summary()}
-function summary(){sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.'}
+function summary(){clearTimeout(OS.autoTimer);sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.'}
 function oTap(){if(OS&&OS.ph==='back')showFace()}
 O.addEventListener('pointerdown',e=>{if(OS&&OS.ph==='pack'){px=e.clientX;py=e.clientY;ld=0}});
 O.addEventListener('pointermove',e=>{const t=document.querySelector('.pkTop');if(px!==null&&(e.buttons!==1||!OS||OS.ph!=='pack')){px=null;if(t&&OS&&OS.ph==='pack')t.style.transform='';return}if(px!==null&&t){const d=e.clientX-px;ld=d;t.style.transform=`translateX(${d}px) rotate(${d/12}deg)`;if(Math.abs(d)>=45)tear()}});
@@ -1291,7 +1293,7 @@ document.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&ev
 
 // atalho secreto: segure S + 0 + 9 juntas para abrir o cheat
 const KD=new Set();
-document.addEventListener('keydown',e=>{const tg=e.target;if(tg&&(tg.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName))){KD.clear();return}KD.add(e.key.toLowerCase());if(KD.has('s')&&KD.has('0')&&KD.has('9')&&!e.repeat){KD.clear();sfx.click();SH='cheat';$('#sheet').hidden=false;renderSheet()}});
+document.addEventListener('keydown',e=>{const tg=e.target;if(tg&&(tg.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName))){KD.clear();return}KD.add(e.key.toLowerCase());if(KD.has('s')&&KD.has('ç')&&KD.has('p')&&!e.repeat){KD.clear();toggleAutoRoll()}else if(KD.has('s')&&KD.has('0')&&KD.has('9')&&!e.repeat){KD.clear();sfx.click();SH='cheat';$('#sheet').hidden=false;renderSheet()}});
 document.addEventListener('keyup',e=>KD.delete(e.key.toLowerCase()));
 window.addEventListener('blur',()=>KD.clear());
 $('#snd').textContent=S.mute?'🔇':'🔊';
