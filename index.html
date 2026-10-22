@@ -666,7 +666,7 @@ function roll(p,lucky){
   const pl=CARDS.filter(c=>c.r===k);
   return pl[Math.floor(Math.random()*pl.length)];
 }
-function rollFoil(lucky){const m=(1+.035*S.up.luck)*(1+.12*S.up.foil)*(lucky?2:1),r=Math.random(),pp=Math.min(.008*m,.06),pb=Math.min(.04*m,.24);return r<pp?2:r<pp+pb?1:0}
+function rollFoil(lucky){const m=(1+.035*S.up.luck)*(1+.12*S.up.foil)*(lucky?2:1),r=Math.random(),pp=Math.min(.001*m,.01),pb=Math.min(.005*m,.05);return r<pp?2:r<pp+pb?1:0}
 function sparks(host,n,col){if(!host)return;for(let i=0;i<n;i++){const a=Math.random()*6.283,d=70+Math.random()*140,e=document.createElement('i');e.className='sp';e.textContent='✦';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--s:${.6+Math.random()*1.1};color:${col}`;host.appendChild(e);setTimeout(()=>e.remove(),1100)}}
 function otick(){if(!OS||OS.ph!=='face'||!OS.st)return;const cd=$('#ocard');if(cd)step(OS.st,cd);OS.st.raf=requestAnimationFrame(otick)}
 let OS=null,px=null,py=0,ld=0;
