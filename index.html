@@ -1158,12 +1158,13 @@ async function pvpJoinRoom(){
   const i=+($('#pvpOnlineDeck')||{}).value,deck=pvpDeckData(i),room=String(($('#pvpRoom')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(!deck)return msg('Escolha um baralho válido com líder e 15 cartas.');if(room.length!==10)return msg('O código da sala deve ter 10 caracteres.');
   await pvpDisconnect(false);RT={client:null,channel:null,role:'guest',room,peerId:pvpPeerId(),guestId:'',status:'Conectando à sala…',seq:0,decks:null,applying:0};pvpOnlineRender();
-  try{await pvpConnect('guest',room);RT.status='Aguardando resposta do anfitrião';await pvpSend({type:'join',peerId:RT.peerId,deck});pvpOnlineRender()}catch(e){const m=errPt(e);await pvpDisconnect(false);RT.status=m;pvpOnlineRender()}
+  try{await pvpConnect('guest',room);RT.status='Aguardando resposta do anfitrião';pvpOnlineRender();const joinMsg={type:'join',peerId:RT.peerId,deck};await pvpSend(joinMsg);let tries=1;const timer=RT.joinTimer=setInterval(()=>{if(RT.joinTimer!==timer||RT.role!=='guest'||!RT.channel){clearInterval(timer);return}if(tries>=10){clearInterval(timer);RT.status='O anfitrião não respondeu. Confira o código e peça para ele manter a sala aberta nesta tela; depois tente entrar de novo.';pvpOnlineRender();return}tries++;pvpSend(joinMsg).catch(()=>{})},2000)}catch(e){const m=errPt(e);await pvpDisconnect(false);RT.status=m;pvpOnlineRender()}
 }
 async function pvpReceive(m){
   if(!m||typeof m!=='object')return;
   if(RT.role==='host'){
     if(m.type==='join'){
+      if(RT.guestId&&m.peerId===RT.guestId){if(D&&D.online)await pvpBroadcastState('start');return}
       if(RT.guestId||RT.status!=='Aguardando adversário'){await pvpSend({type:'busy',to:m.peerId});return}
       if(!pvpDeckDataValid(m.deck)){await pvpSend({type:'bad-deck',to:m.peerId});return}
       RT.guestId=m.peerId;RT.decks[1]=m.deck;RT.status='Partida iniciada';dStartOnline(RT.decks[0],RT.decks[1]);await pvpBroadcastState('start');return;
@@ -1173,6 +1174,7 @@ async function pvpReceive(m){
     return;
   }
   if(RT.role!=='guest'||(m.to&&m.to!==RT.peerId))return;
+  clearInterval(RT.joinTimer);
   if(m.type==='busy'){RT.status='Essa sala já está ocupada.';pvpOnlineRender();return}
   if(m.type==='bad-deck'){RT.status='O baralho enviado não é válido. Confira líder e 15 cartas.';pvpOnlineRender();return}
   if(m.type==='leave'){D=null;RT.status='O anfitrião encerrou a sala.';pvpOnlineRender();return}
@@ -1204,6 +1206,7 @@ async function pvpRunGuestAction(a){
 async function pvpRestart(){if(RT.role!=='host'||!RT.decks||!RT.guestId)return;dStartOnline(RT.decks[0],RT.decks[1]);await pvpBroadcastState('start')}
 async function pvpGuestAction(action){if(!D||!RT.channel||RT.role!=='guest'||RT.pending)return;RT.pending=1;dRender();try{await pvpSend({type:'action',peerId:RT.peerId,baseSeq:RT.seq,action})}catch(e){RT.pending=0;msg(errPt(e));dRender()}}
 async function pvpDisconnect(notify){
+  clearInterval(RT.joinTimer);
   const ch=RT.channel,client=RT.client,role=RT.role,room=RT.room,peerId=RT.peerId,guestId=RT.guestId;
   if(notify&&ch)try{await ch.send({type:'broadcast',event:'room',payload:{type:role==='guest'?'leave':'leave',peerId,to:guestId||undefined}})}catch(e){}
   try{if(client&&ch)await client.removeChannel(ch)}catch(e){}
