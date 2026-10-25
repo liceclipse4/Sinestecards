@@ -489,6 +489,7 @@ body[data-pack-theme="cosmic"] #msg{background:#17345f;color:#fff;border-color:r
 .pk:not(.focused) .pill,.pk:not(.focused) small{opacity:0;pointer-events:none}
 .pk small{line-height:1.15;text-align:center;max-width:100%}
 .pack-turn-label{bottom:2px;font-size:.74rem;opacity:.85}
+.oskip{position:fixed;z-index:31;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 22px);padding:10px 22px;border-radius:99px;font-weight:800;white-space:nowrap}.oskip[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.pk{transition:none}.pk.slide-in,.pk.slide-out{animation:none}}
 @media(prefers-reduced-motion:reduce){.stage .color-field,.stage::before,.stage::after{transition:none}}
 
@@ -522,7 +523,7 @@ body[data-pack-theme="cosmic"] #msg{background:#17345f;color:#fff;border-color:r
   <button data-act="sheet" data-s="bat" aria-label="Batalha">⚔️<small>Batalha</small></button>
 </nav>
 <div id="sheet" hidden><div class="shead"><button data-act="sclose" aria-label="Voltar">←</button><h2 id="stitle"></h2></div><div id="sbody"></div></div>
-<div id="open" hidden tabindex="-1" role="dialog" aria-label="Abrindo pacote"><div id="stage"></div><p class="ohint" id="ohint"></p></div>
+<div id="open" hidden tabindex="-1" role="dialog" aria-label="Abrindo pacote"><div id="stage"></div><p class="ohint" id="ohint"></p><button class="oskip" id="oskip" data-act="oskip" hidden>⏭ Coletar todas</button></div>
 <div id="view" hidden role="dialog" aria-label="Carta em 3D"><button class="vx" data-act="vclose" aria-label="Fechar">←</button>
   <div class="vscene"><div class="vglow"></div><div class="vcard" id="vcard"><div class="vf" id="vfront"></div><div class="vf vb" id="vback"></div></div></div>
   <div class="vinfo" id="vinfo"></div><button data-act="vflip">Virar carta</button><p class="ohint">Arraste a carta para girar.</p></div>
@@ -647,7 +648,8 @@ const TAGS={
  'Escola H':['UnGravity','MagiNegra','SuperVocê','Sol','Estrela Polar','Cassandra Bright','Freddie Frostmann','Crystal Nooce','Crystal Nooce (Criança)','Bra','Greeza','Ana Lise','Goro'],
  'ASH':['Hipergirl','Agatha','Ayrá','Arauta da Realidade','Darwin','Élio','UnGravity','James','Roxanne','MagiBranco','SuperVocê','Sol','Estrela Polar','Vulto','Misato','Callas'],
  'Liga Delta':['Sol','Estrela Polar','MagiBranco','SuperVocê','UnGravity'],
- 'Família Hayato':['Zak','Sol','Jupiter','Hayato']
+ 'Família Hayato':['Zak','Sol','Jupiter','Hayato'],
+ 'Frostmann':['Hiperman','Estrela Polar','Hipergirl','Agatha','Freddie Frostmann','Greeza','Frelazi','Jorge','James','Roxanne','Ayrá','Arauta da Realidade']
 };
 const arenaInfo=a=>`<section class="attack-info"><div class="attack-type">ARENA · slot exclusivo, sem vida e não gasta energia, não pode ser atacado</div><div class="ability"><b>🏟️ Passiva</b><p>${a.passive}</p></div></section>`;
 // Versões Brilhante (✦) e Prismática (❖) são cartas separadas, com id próprio (c5b / c5p) e render mais moedas.
@@ -675,13 +677,14 @@ const UPS=[
   {k:'foil',n:'Prensa holográfica',d:'+12% nas chances de versões Brilhantes e Prismáticas por nível',b:2500,g:1.85,max:50},
   {k:'pack',n:'Embalagem reforçada',d:'+1 carta em cada pacote por nível (até +10 cartas)',b:10000,g:5,max:10},
   {k:'slot',n:'Organizador de mesa',d:'Reduz em 5% o custo de liberar espaços da mesa por nível (até 75%)',b:1200,g:2.1,max:15},
-  {k:'offline',n:'Equipe noturna',d:'Gera renda offline por até 4 horas, com bônus de 25% por nível',b:5000,g:2.2,max:12}
+  {k:'offline',n:'Equipe noturna',d:'Gera renda offline por até 4 horas, com bônus de 25% por nível',b:5000,g:2.2,max:12},
+  {k:'skipall',n:'Coletar todas',d:'Compra única: libera o botão “Coletar todas” ao abrir pacotes, que pula a revelação carta por carta e vai direto pro resumo',b:1e6,g:1,max:1,once:1}
 ];
 const SC=[0,0,0,1000,5000,25000,125000,600000],LUCKY=100;
 
 // ===== ESTADO =====
 const K='atelie_idle_v1';
-const fresh=()=>({v:0,coins:0,owned:{},fv:{},leader:null,decks:[],dk:0,slots:Array(8).fill(null),unlocked:3,packs:0,stage:1,up:{click:0,ink:0,luck:0,press:0,auto:0,gold:0,tapcrit:0,foil:0,pack:0,slot:0,offline:0},t:Date.now()});
+const fresh=()=>({v:0,coins:0,owned:{},fv:{},leader:null,decks:[],dk:0,slots:Array(8).fill(null),unlocked:3,packs:0,stage:1,up:{click:0,ink:0,luck:0,press:0,auto:0,gold:0,tapcrit:0,foil:0,pack:0,slot:0,offline:0,skipall:0},t:Date.now()});
 let S=fresh();
 function migFv(){const f=S.fv||{};Object.keys(f).forEach(id=>{const o=f[id]||{};[['b','b'],['p','p']].forEach(([k,s])=>{const n=o[k]|0;if(n>0&&BY[id+s]){S.owned[id+s]=(S.owned[id+s]||0)+n;S.owned[id]=Math.max(0,(S.owned[id]||0)-n)}});if(!S.owned[id]){if(S.slots.includes(id))S.owned[id]=1;else delete S.owned[id]}});S.fv={}}
 try{const s=JSON.parse(localStorage.getItem(K));if(s)S=Object.assign(fresh(),s)}catch(e){}
@@ -758,7 +761,7 @@ function slotsHTML(){
   }
   return h;
 }
-const upHTML=u=>{const l=S.up[u.k],mx=l>=u.max;return `<div class="panel"><b>${u.n} (nível ${l})</b><p>${u.d}</p><button data-act="up" data-k="${u.k}" data-cost="${mx?1e99:upCost(u)}">${mx?'Nível máximo':'🪙 '+fmt(upCost(u))}</button></div>`};
+const upHTML=u=>{const l=S.up[u.k],mx=l>=u.max;return `<div class="panel"><b>${u.n}${u.once?'':' (nível '+l+')'}</b><p>${u.d}</p><button data-act="up" data-k="${u.k}" data-cost="${mx?1e99:upCost(u)}">${mx?(u.once?'Comprado ✓':'Nível máximo'):'🪙 '+fmt(upCost(u))}</button></div>`};
 let PACK_FOCUS=PACKS.findIndex(p=>p.on),PACK_LAST_FOCUS=null,PACK_TURN_DIR=1;
 function setPackFocus(i,dir=0){if(!PACKS[i]?.on||i===PACK_FOCUS)return;const ids=PACKS.map((p,k)=>p.on?k:-1).filter(k=>k>=0),from=ids.indexOf(PACK_FOCUS),to=ids.indexOf(i);if(!dir){dir=to-from;if(dir>ids.length/2)dir-=ids.length;if(dir< -ids.length/2)dir+=ids.length}PACK_TURN_DIR=Math.sign(dir)||1;PACK_FOCUS=i;renderCar()}
 function rotatePack(dir){const ids=PACKS.map((p,i)=>p.on?i:-1).filter(i=>i>=0);if(ids.length<2)return;let pos=ids.indexOf(PACK_FOCUS);if(pos<0)pos=0;setPackFocus(ids[(pos+dir+ids.length)%ids.length],dir)}
@@ -813,21 +816,22 @@ function sparks(host,n,col){if(!host)return;for(let i=0;i<n;i++){const a=Math.ra
 function otick(){if(!OS||OS.ph!=='face'||!OS.st)return;const cd=$('#ocard');if(cd)step(OS.st,cd);OS.st.raf=requestAnimationFrame(otick)}
 let OS=null,px=null,py=0,ld=0,AUTO_ROLL=false,AUTO_PACK=null;
 const O=$('#open');
+const skipBtn=()=>{const b=$('#oskip');if(b)b.hidden=!(S.up.skipall&&OS&&(OS.ph==='back'||OS.ph==='face'))};
 function autoStep(fn,delay){if(OS?.auto){clearTimeout(OS.autoTimer);OS.autoTimer=setTimeout(()=>{if(OS?.auto)fn()},delay)}}
 function toggleAutoRoll(){AUTO_ROLL=!AUTO_ROLL;if(OS){OS.auto=AUTO_ROLL;if(AUTO_ROLL){if(OS.ph==='pack')autoStep(tear,250);else if(OS.ph==='back')autoStep(showFace,250);else if(OS.ph==='face')autoStep(next,1600);else if(OS.ph==='sum')autoStep(autoContinue,250)}else clearTimeout(OS.autoTimer)}sfx.click();msg(AUTO_ROLL?'Rolagem automática ativada.':'Rolagem automática desativada.')}
 function autoContinue(){if(!OS||!OS.auto||AUTO_PACK===null)return;const p=PACKS[AUTO_PACK],cost=packCost(p);if(S.coins<cost){$('#ohint').textContent='Aguardando moedas para o próximo pacote. S+Ç+P para parar.';autoStep(autoContinue,1000);return}act.oclose();act.open({dataset:{i:String(AUTO_PACK)}})}
 function openFx(p,cards,fresh,lucky,fv,fn){
   OS={cards,fresh,fv:fv||[],fn:fn||[],i:0,ph:'pack',auto:AUTO_ROLL,autoTimer:null};
-  O.hidden=false;
+  skipBtn();O.hidden=false;
   OS.bk=p.cardBack||p.back||null;const hc=p.cover?' has':'';
   $('#stage').innerHTML=`<div class="op${lucky?' gold':''}${hc}" id="op" ${p.cover?`style="--cv:url('${p.cover}')"`:''}><div class="pkTop${hc}"></div><div class="pkBody${hc}">${p.cover?'':`<span>${p.g}</span><b>${p.n}</b>`}</div></div>`;
   $('#ohint').textContent=(lucky?'Pacote da sorte! ':'')+'Toque no pacote ou deslize para rasgar.';
   O.focus();autoStep(tear,700);
 }
 function tear(){if(!OS||OS.ph!=='pack')return;px=null;OS.ph='tear';const dir=ld<0?-1:1,tp=document.querySelector('.pkTop');const op=$('#op'),mx=Math.max(...OS.cards.map(c=>c.r));op.classList.add('torn');const fl=document.createElement('div');fl.className='flash';fl.style.setProperty('--fc',R[mx].col);op.appendChild(fl);sparks(op,10+mx*6,R[mx].col);sfx.rip();setTimeout(()=>sfx.burst(mx),140);if(tp)tp.style.transform=`translate(${ld+dir*320}px,-90px) rotate(${dir*35}deg)`;setTimeout(showBack,700)}
-function showBack(){if(OS.st)cancelAnimationFrame(OS.st.raf);for(let j=0;j<OS.cards.length-OS.i;j++)setTimeout(sfx.deal,j*80);OS.ph='back';const n=OS.cards.length-OS.i;$('#stage').innerHTML='<div class="stack">'+Array.from({length:n},(_,j)=>`<div class="cb${OS.bk?' img':''}" style="--k:${n-1-j};animation-delay:${j*.08}s${OS.bk?`;--bk:url('${OS.bk}')`:''}">${OS.bk?'':'<span>✦</span>'}</div>`).join('')+'</div>';$('#ohint').textContent=(OS.i?'':'Suas cartas saíram do pacote! ')+'Toque para revelar a carta '+(OS.i+1)+' de '+OS.cards.length+'.';autoStep(showFace,550)}
+function showBack(){if(OS.st)cancelAnimationFrame(OS.st.raf);for(let j=0;j<OS.cards.length-OS.i;j++)setTimeout(sfx.deal,j*80);OS.ph='back';skipBtn();const n=OS.cards.length-OS.i;$('#stage').innerHTML='<div class="stack">'+Array.from({length:n},(_,j)=>`<div class="cb${OS.bk?' img':''}" style="--k:${n-1-j};animation-delay:${j*.08}s${OS.bk?`;--bk:url('${OS.bk}')`:''}">${OS.bk?'':'<span>✦</span>'}</div>`).join('')+'</div>';$('#ohint').textContent=(OS.i?'':'Suas cartas saíram do pacote! ')+'Toque para revelar a carta '+(OS.i+1)+' de '+OS.cards.length+'.';autoStep(showFace,550)}
 function showFace(){
-  const c=OS.cards[OS.i],r=R[c.r],last=OS.i>=OS.cards.length-1;OS.ph='face';
+  const c=OS.cards[OS.i],r=R[c.r],last=OS.i>=OS.cards.length-1;OS.ph='face';skipBtn();
   if(OS.st)cancelAnimationFrame(OS.st.raf);
   const v=OS.fv[OS.i]||0,fl=flH(v),front=c.fg?`${heroLayers3d(c,fl)}`:c.art?`<img src="${c.art}" alt="${c.n}" loading="lazy" decoding="async">${fl}`:cardHTML(c,{v});
   $('#stage').innerHTML=`<div class="vscene ofc${c.fg?' herox':''}${c.r===5?' rainbow':''}" data-v="${v}" style="--rc:${r.col}"><div class="vglow"></div><div class="vcard" id="ocard"><div class="vf${c.fg?' hv':''}">${front}</div><div class="vf vb" style="background-image:${OS.bk?`url('${OS.bk}')`:'none'}"></div></div></div><div class="vinfo"><h2>${c.n}</h2><p>${v?`<b class="vlab vl${v}">${FI[v]} ${FN[v]}</b> `:''}${OS.fresh[OS.i]?'✨ Nova! ':OS.fn[OS.i]?'✨ Nova versão! ':''}<span style="color:var(--rc)">${SYM[c.r]}</span> ${r.n}</p></div><button data-act="onext">${last?'Ver resumo':'Próxima carta'}</button>`;
@@ -836,7 +840,7 @@ function showFace(){
   $('#ohint').textContent='Arraste a carta para girar.';autoStep(next,1600)
 }
 function next(){sfx.click();if(OS.i<OS.cards.length-1){OS.i++;showBack()}else summary()}
-function summary(){clearTimeout(OS.autoTimer);sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.';autoStep(autoContinue,1800)}
+function summary(){clearTimeout(OS.autoTimer);sfx.done();if(OS.st)cancelAnimationFrame(OS.st.raf);OS.ph='sum';skipBtn();$('#stage').innerHTML=`<div class="sum">${OS.cards.map((c,i)=>cardHTML(c,{v:OS.fv[i]||0,tag:OS.fresh[i]||OS.fn[i]?'Nova!':'',attrs:`role="button" tabindex="0" data-act="view" data-id="${c.id}" data-v="${OS.fv[i]||0}"`})).join('')}</div><button data-act="oclose">Continuar</button>`;$('#ohint').textContent='Toque numa carta para vê-la em 3D.';autoStep(autoContinue,1800)}
 function oTap(){if(OS&&OS.ph==='back')showFace()}
 O.addEventListener('pointerdown',e=>{if(OS&&OS.ph==='pack'){px=e.clientX;py=e.clientY;ld=0}});
 O.addEventListener('pointermove',e=>{const t=document.querySelector('.pkTop');if(px!==null&&(e.buttons!==1||!OS||OS.ph!=='pack')){px=null;if(t&&OS&&OS.ph==='pack')t.style.transform='';return}if(px!==null&&t){const d=e.clientX-px;ld=d;t.style.transform=`translateX(${d}px) rotate(${d/12}deg)`;if(Math.abs(d)>=45)tear()}});
@@ -1645,7 +1649,8 @@ const act={
   },
   rotatePack(e){rotatePack(+e.dataset.dir)},
   focusPack(e){setPackFocus(+e.dataset.i)},
-  oclose(){sfx.click();OS=null;O.hidden=true;renderAll()},
+  oclose(){sfx.click();OS=null;skipBtn();O.hidden=true;renderAll()},
+  oskip(){if(!OS||!S.up.skipall||(OS.ph!=='back'&&OS.ph!=='face'))return;sfx.click();clearTimeout(OS.autoTimer);summary()},
   sheet(e){sfx.whoosh(.5);SH=e.dataset.s;$('#sheet').hidden=false;renderSheet()},
   sclose(){sfx.click();SH=null;$('#sheet').hidden=true},
   up(e){const u=UPS.find(x=>x.k===e.dataset.k),c=upCost(u);if(S.coins<c||S.up[u.k]>=u.max){sfx.err();return}S.coins-=c;S.up[u.k]++;sfx.buy();renderAll();save()},
