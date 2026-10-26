@@ -569,6 +569,78 @@ main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-templ
 #sbody .fchip.on small{opacity:.8}
 #sbody .fchip.mode{border-style:dashed}#sbody .fchip.mode.on{border-style:solid}
 .fpanel{margin-bottom:12px}.fpanel>b{margin-top:4px}
+/* ===== PAINEL DE BUFFS ===== */
+.bfx{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(3,6,24,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);overscroll-behavior:contain}
+.bfx-box{width:min(100%,400px);max-height:min(82dvh,640px);overflow:auto;border:2px solid var(--rc,#6fa8ff);border-radius:18px;background:linear-gradient(172deg,#1f36a0,#0a1450);color:#fff;padding:14px 14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.6);-webkit-user-select:text;user-select:text}
+.bfx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.bfx-h b{font-size:1.12rem}.bfx-h small{display:block;margin-top:2px;opacity:.85;font-weight:700}
+.bfx .bfx-x{flex:none;width:44px;height:44px;padding:0;border-radius:50%;font-size:1rem;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);box-shadow:none}
+.bfx h4{margin:12px 0 5px;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.bfx ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.bfx li{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.08)}
+.bfx li.t{background:rgba(255,255,255,.16);font-weight:800}
+.bfx li b{white-space:nowrap}.bfx .up{color:#8dffb4}.bfx .dn{color:#ff9aa8}
+.bfx-n{margin:10px 0 0;font-size:.82rem;opacity:.8}
+
+/* ===== ACABAMENTO VISUAL (camada final) ===== */
+:root{--ease:cubic-bezier(.2,.8,.2,1)}
+html{scrollbar-width:thin;scrollbar-color:rgba(150,185,255,.35) transparent}
+::selection{background:rgba(233,201,138,.35);color:#fff}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(150,185,255,.32);border-radius:99px}
+::-webkit-scrollbar-track{background:transparent}
+/* botões: brilho suave e resposta ao toque */
+button{transition:transform .18s var(--ease),box-shadow .25s var(--ease),filter .2s,background .25s;position:relative}
+button:not(:disabled):active{transform:translateY(1px) scale(.97)}
+@media (hover:hover){
+  button:not(:disabled):hover{filter:brightness(1.06) saturate(1.05);box-shadow:0 6px 20px rgba(110,160,255,.5)}
+  button.tile:not(:disabled):hover,.pk:hover{transform:translateY(-3px)}
+  .card:not(.locked):hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(0,4,30,.6),0 0 18px color-mix(in srgb,var(--rc) 55%,transparent)}
+}
+.card{transition:transform .22s var(--ease),box-shadow .22s var(--ease)}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14),transparent 38%);mix-blend-mode:screen}
+/* painéis em vidro com borda de luz */
+.pill,.tile,.panel,.dmid,.dres{box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.14)}
+.panel,.tile{background:linear-gradient(165deg,rgba(34,56,140,.55),rgba(14,26,78,.6))}
+button.tile{background:linear-gradient(165deg,#f2f7ff,#9dbdff 70%,#86aaf5)}
+.dock{box-shadow:0 14px 40px rgba(0,6,40,.6),inset 0 1px 0 rgba(255,255,255,.16),0 0 0 1px rgba(233,201,138,.14)}
+/* mesa de batalha */
+.mat{box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 60px rgba(40,80,200,.12)}
+.mat>.hero{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 16px rgba(0,4,30,.4)}
+.field{background:linear-gradient(rgba(255,255,255,.025),transparent)}
+.fs{background:rgba(255,255,255,.025);border-style:dashed}
+.tc{box-shadow:0 8px 18px rgba(0,4,30,.6),inset 0 1px 0 rgba(255,255,255,.14)}
+.tc.sel{box-shadow:0 0 0 1px rgba(255,217,120,.6),0 12px 24px rgba(0,4,30,.7),0 0 22px rgba(255,217,120,.45)}
+.lpb{box-shadow:inset 0 2px 4px rgba(0,0,0,.55)}
+.lpb i{box-shadow:0 0 10px rgba(122,240,166,.55),inset 0 1px 0 rgba(255,255,255,.45)}
+.lpb.low i{box-shadow:0 0 10px rgba(255,217,120,.55),inset 0 1px 0 rgba(255,255,255,.45)}
+.hero.foe .lpb i{box-shadow:0 0 10px rgba(255,107,138,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+.dmid{background:linear-gradient(rgba(6,12,48,.85),rgba(3,8,34,.9))}
+.dres b{text-shadow:0 2px 14px rgba(120,170,255,.55)}
+.dres.win b{text-shadow:0 0 18px rgba(255,217,120,.7)}
+.dres.lose b{text-shadow:0 0 18px rgba(255,107,138,.6)}
+/* painel de buffs */
+.bfx{animation:bfxIn .22s ease both}
+.bfx-box{animation:bfxPop .3s var(--ease) both;border-width:1.5px;background:radial-gradient(120% 60% at 50% 0%,color-mix(in srgb,var(--rc,#6fa8ff) 28%,transparent),transparent 70%),linear-gradient(172deg,#1f36a0,#0a1450);box-shadow:0 22px 60px rgba(0,0,0,.65),0 0 34px color-mix(in srgb,var(--rc,#6fa8ff) 35%,transparent),inset 0 1px 0 rgba(255,255,255,.18)}
+.bfx-h{padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.14)}
+.bfx-h b{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.25rem;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.bfx h4{display:flex;align-items:center;gap:8px;color:var(--gold,#e9c98a);opacity:.95}
+.bfx h4::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(233,201,138,.45),transparent)}
+.bfx li{background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.07);align-items:center}
+.bfx li.t{background:linear-gradient(90deg,rgba(233,201,138,.26),rgba(233,201,138,.1));border-color:rgba(233,201,138,.35)}
+.bfx li b{font-variant-numeric:tabular-nums}
+.bfx .up{text-shadow:0 0 10px rgba(141,255,180,.45)}
+.bfx .dn{text-shadow:0 0 10px rgba(255,154,168,.4)}
+.bfx-x:hover{background:rgba(255,255,255,.22)}
+@keyframes bfxIn{from{opacity:0}}
+@keyframes bfxPop{from{opacity:0;transform:translateY(14px) scale(.95)}}
+/* mensagem flutuante */
+#msg{box-shadow:0 10px 30px rgba(0,6,40,.55),0 0 0 1px rgba(255,255,255,.35) inset;border-radius:99px}
+@media (prefers-reduced-motion:reduce){.bfx,.bfx-box{animation:none}button,.card{transition:none}.card:hover,.pk:hover,button.tile:hover{transform:none}}
+/* corrige sobreposição: dica de girar fica fora do carrossel, abaixo do nome do pacote */
+.car{margin-bottom:34px}
+.pack-turn-label{bottom:-32px!important}
+.pk small{font-size:1.1rem}
 </style>
 </head>
 <body>
@@ -720,7 +792,15 @@ const TAGS={
  'ASH':['Hipergirl','Agatha','Ayrá','Arauta da Realidade','Darwin','Élio','UnGravity','James','Roxanne','MagiBranco','SuperVocê','Sol','Estrela Polar','Vulto','Misato','Callas'],
  'Liga Delta':['Sol','Estrela Polar','MagiBranco','SuperVocê','UnGravity'],
  'Família Hayato':['Zak','Sol','Jupiter','Hayato'],
- 'Frostmann':['Hiperman','Estrela Polar','Hipergirl','Agatha','Freddie Frostmann','Greeza','Frelazi','Jorge','James','Roxanne','Ayrá','Arauta da Realidade']
+ 'Frostmann':['Hiperman','Estrela Polar','Hipergirl','Agatha','Freddie Frostmann','Greeza','Frelazi','Jorge','James','Roxanne','Ayrá','Arauta da Realidade'],
+ 'Humano':['Noah','Darwin','Absource','Hipergirl','Mister Físico','Bioman','Hiperman','Zak','Vitor Addams (criança)','Jerônimo Addams','Sol','Heitor','Kidian','Élio','Agatha','UltraTech','Mister Explosion Man','Mister Poluição Man','Ultrasin','OceanMan','Bioboy & Biogirl','Side-Físico','Cassandra Bright','UnGravity','Hermes','James','Roxanne','Jupiter','Mister Sinestesia','Hayato','Vulto','Renji','Luiza','Gustavo','Ayrá','Detetive Miguel','Arauta da Realidade','Crystal Nooce (Criança)','Bra','Misato','Greeza','Ana Lise','Frelazi','Callas','Goro','MagiNegra','MagiBranco','SuperVocê','Crystal Nooce'],
+ 'Nefasto':['Jorge'],
+ 'Extraterrestre':['Estrela Polar','Freddie Frostmann'],
+ 'Nobilis':['Vulto','Hermes'],
+ 'Iceriano':['Estrela Polar','James','Roxanne','Agatha','Hipergirl','Freddie Frostmann'],
+ 'Híbrido':['Hermes','James','Roxanne','Agatha','Hipergirl'],
+ 'Ser Artificial':['Sparkle'],
+ 'Artes':['Ayrá','Arauta da Realidade']
 };
 const arenaInfo=a=>`<section class="attack-info"><div class="attack-type">ARENA · slot exclusivo, sem vida e não gasta energia, não pode ser atacado</div><div class="ability"><b>🏟️ Passiva</b><p>${a.passive}</p></div></section>`;
 // Versões Brilhante (✦) e Prismática (❖) são cartas separadas, com id próprio (c5b / c5p) e render mais moedas.
@@ -740,26 +820,39 @@ function packForCard(c){const id=c.base||c.id;return PACKS.find(p=>packCards(p).
 const UPS=[
   {k:'click',n:'Lápis afiado',d:'+1 moeda por toque',b:15,g:1.6,max:250},
   {k:'ink',n:'Tinta premium',d:'+15% de renda das cartas por nível',b:100,g:1.9,max:250},
-  {k:'luck',n:'Trevo de papel',d:'Melhora as chances de raridades altas e versões especiais',b:500,g:2.8,max:20},
-  {k:'press',n:'Gráfica própria',d:'-3% no preço dos pacotes por nível (até 60% de desconto)',b:300,g:2.4,max:20},
   {k:'auto',n:'Autômato de balcão',d:'+2 moedas por segundo, mesmo sem cartas na mesa',b:250,g:1.85,max:200},
   {k:'gold',n:'Tinta dourada',d:'+8% de renda total das cartas por nível',b:1500,g:1.9,max:100},
   {k:'tapcrit',n:'Pulso criativo',d:'Cada nível dá +2% de chance de ganhar 5× moedas ao tocar (máximo de 50%)',b:600,g:1.9,max:25},
-  {k:'foil',n:'Prensa holográfica',d:'+12% nas chances de versões Brilhantes e Prismáticas por nível',b:2500,g:1.85,max:50},
-  {k:'pack',n:'Embalagem reforçada',d:'+1 carta em cada pacote por nível (até +10 cartas)',b:10000,g:5,max:10},
   {k:'slot',n:'Organizador de mesa',d:'Reduz em 5% o custo de liberar espaços da mesa por nível (até 75%)',b:1200,g:2.1,max:15},
   {k:'offline',n:'Equipe noturna',d:'Gera renda offline por até 4 horas, com bônus de 25% por nível',b:5000,g:2.2,max:12},
   {k:'skipall',n:'Coletar todas',d:'Compra única: libera o botão “Coletar todas” ao abrir pacotes, que pula a revelação carta por carta e vai direto pro resumo',b:1e6,g:1,max:1,once:1}
 ];
+// Upgrades que afetam só o pacote: cada pacote tem os seus próprios níveis (S.pu[índiceDoPacote])
+const PUPS=[
+  {k:'luck',n:'Trevo de papel',d:'Melhora as chances de raridades altas e versões especiais deste pacote',b:500,g:2.8,max:20},
+  {k:'press',n:'Gráfica própria',d:'-3% no preço deste pacote por nível (até 60% de desconto)',b:300,g:2.4,max:20},
+  {k:'foil',n:'Prensa holográfica',d:'+12% nas chances de versões Brilhantes e Prismáticas deste pacote por nível',b:2500,g:1.85,max:50},
+  {k:'pack',n:'Embalagem reforçada',d:'+1 carta neste pacote por nível (até +10 cartas)',b:10000,g:5,max:10}
+];
+const PUK=['luck','press','foil','pack'];
+const puMul=p=>Math.max(1,Math.sqrt(p.cost)/10); // pacotes caros têm upgrades mais caros
+const pl=(p,k)=>{const i=typeof p==='number'?p:PACKS.indexOf(p);return (S.pu&&S.pu[i]&&S.pu[i][k])|0};
+const puCost=(i,u)=>Math.ceil(u.b*puMul(PACKS[i])*Math.pow(u.g,pl(i,u.k)));
 const SC=[0,0,0,1000,5000,25000,125000,600000],LUCKY=100;
 
 // ===== ESTADO =====
 const K='atelie_idle_v1';
-const fresh=()=>({v:0,coins:0,owned:{},fv:{},leader:null,decks:[],dk:0,slots:Array(8).fill(null),unlocked:3,packs:0,stage:1,up:{click:0,ink:0,luck:0,press:0,auto:0,gold:0,tapcrit:0,foil:0,pack:0,slot:0,offline:0,skipall:0},t:Date.now()});
+const fresh=()=>({v:0,coins:0,owned:{},fv:{},leader:null,decks:[],dk:0,slots:Array(8).fill(null),unlocked:3,packs:0,stage:1,up:{click:0,ink:0,auto:0,gold:0,tapcrit:0,slot:0,offline:0,skipall:0},pu:{},pm:1,t:Date.now()});
 let S=fresh();
 function migFv(){const f=S.fv||{};Object.keys(f).forEach(id=>{const o=f[id]||{};[['b','b'],['p','p']].forEach(([k,s])=>{const n=o[k]|0;if(n>0&&BY[id+s]){S.owned[id+s]=(S.owned[id+s]||0)+n;S.owned[id]=Math.max(0,(S.owned[id]||0)-n)}});if(!S.owned[id]){if(S.slots.includes(id))S.owned[id]=1;else delete S.owned[id]}});S.fv={}}
 try{const s=JSON.parse(localStorage.getItem(K));if(s)S=Object.assign(fresh(),s)}catch(e){}
 S.up=Object.assign(fresh().up,S.up||{});
+if(!S.pu||typeof S.pu!=='object')S.pu={};
+if(!S.pm){ // migração: upgrades globais de pacote viram individuais; devolve as moedas gastas neles
+  const OLD={luck:[500,2.8],press:[300,2.4],foil:[2500,1.85],pack:[10000,5]};let ref=0;
+  PUK.forEach(k=>{const n=S.up[k]|0;for(let i=0;i<n;i++)ref+=Math.ceil(OLD[k][0]*Math.pow(OLD[k][1],i));delete S.up[k]});
+  S.coins=(S.coins||0)+ref;S.pm=1;if(ref>0)setTimeout(()=>msg('♻️ Upgrades de pacote agora são individuais por pacote. Reembolso: +'+fmt(ref)+' moedas'),0);
+}
 const OFFLINE_SINCE=Number(S.t)||Date.now();
 S.slots=S.slots.map(id=>BY[id]?id:null);migFv();Object.keys(S.owned).forEach(k=>{if(!BY[k])delete S.owned[k]});if(S.leader&&!S.owned[S.leader])S.leader=null;fixDecks();
 if(!S.fv||typeof S.fv!=='object')S.fv={};const sigOf=()=>{const o=Object.assign({},S);delete o.t;delete o.v;delete o.coins;return JSON.stringify(o)};let _sig=sigOf();const save=()=>{const g=sigOf();if(g!==_sig){S.v=(S.v|0)+1;_sig=g}S.t=Date.now();try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
@@ -768,7 +861,7 @@ const fmt=n=>{if(n<1000)return n<10?n.toFixed(1).replace('.',','):Math.floor(n)+
 const cardInc=c=>(c.id.startsWith('cos-')?(c.r===5?25000:600+R[c.r].inc):R[c.r].inc)*FM[c.f||0]*(1+.25*Math.max((S.owned[c.id]||0)-1,0));
 const inc=()=>2*S.up.auto+S.slots.reduce((a,id)=>a+(id?cardInc(BY[id]):0),0)*(1+.15*S.up.ink)*(1+.08*S.up.gold);
 const upCost=u=>Math.ceil(u.b*Math.pow(u.g,S.up[u.k]||0));
-const packCost=p=>Math.ceil(p.cost*(1-.03*S.up.press));
+const packCost=p=>Math.ceil(p.cost*(1-.03*pl(p,'press')));
 const slotCost=i=>Math.ceil((SC[i]||0)*(1-.05*S.up.slot));
 const offlineSeconds=Math.min(4*60*60,Math.max(0,(Date.now()-OFFLINE_SINCE)/1000));
 const offlineBonus=(S.up.offline>0&&offlineSeconds>5)?inc()*offlineSeconds*(.25*S.up.offline):0;S.coins+=offlineBonus;
@@ -849,6 +942,8 @@ function slotsHTML(){
   }
   return h;
 }
+const pupHTML=(i,u)=>{const l=pl(i,u.k),mx=l>=u.max;return `<div class="panel"><b>${u.n} (nível ${l})</b><p>${u.d}</p><button data-act="pup" data-i="${i}" data-k="${u.k}" data-cost="${mx?1e99:puCost(i,u)}">${mx?'Nível máximo':'🪙 '+fmt(puCost(i,u))}</button></div>`};
+const pupsHTML=()=>PACKS.map((p,i)=>p.on?`<h3>🎴 ${esc(p.n)} <small>upgrades só deste pacote</small></h3><div class="grid2">${PUPS.map(u=>pupHTML(i,u)).join('')}</div>`:'').join('');
 const upHTML=u=>{const l=S.up[u.k],mx=l>=u.max;return `<div class="panel"><b>${u.n}${u.once?'':' (nível '+l+')'}</b><p>${u.d}</p><button data-act="up" data-k="${u.k}" data-cost="${mx?1e99:upCost(u)}">${mx?(u.once?'Comprado ✓':'Nível máximo'):'🪙 '+fmt(upCost(u))}</button></div>`};
 let PACK_FOCUS=PACKS.findIndex(p=>p.on),PACK_LAST_FOCUS=null,PACK_TURN_DIR=1;
 function setPackFocus(i,dir=0){if(!PACKS[i]?.on||i===PACK_FOCUS)return;const ids=PACKS.map((p,k)=>p.on?k:-1).filter(k=>k>=0),from=ids.indexOf(PACK_FOCUS),to=ids.indexOf(i);if(!dir){dir=to-from;if(dir>ids.length/2)dir-=ids.length;if(dir< -ids.length/2)dir+=ids.length}PACK_TURN_DIR=Math.sign(dir)||1;PACK_FOCUS=i;renderCar()}
@@ -872,7 +967,7 @@ function renderSheet(){
     h=`<p class="hint">Coleção exclusiva de ${p.n}. Toque numa carta para vê-la em 3D. Para equipar, use a Mesa.</p><h3>${p.n}</h3>`+group('Cartas',base)+group('✦ Brilhantes',bright)+group('❖ Prismáticas',prism);
   }else if(SH==='deck'){h=deckHTML();}else if(SH==='bat'){h=batHTML();}else if(SH==='conta'){h=accHTML();}else if(SH==='cheat'){
     h=`<p class="hint">Modo teste: toque numa carta para pegar uma cópia.</p><div class="grid2"><button data-act="gold" data-n="1000">🪙 +1 mil</button><button data-act="gold" data-n="1000000">🪙 +1 mi</button><button data-act="giveall">Pegar todas</button><button data-act="givefoil">Pegar todas (✦ e ❖)</button><button data-act="slots">Liberar 8 espaços</button></div><div class="row" style="margin-top:14px">${[...ALLC].reverse().map(c=>cardHTML(c,{tag:S.owned[c.id]?'×'+S.owned[c.id]:'',attrs:`role="button" tabindex="0" data-act="give" data-id="${c.id}"`})).join('')}</div>`;
-  }else h=`<div class="grid2">${UPS.map(upHTML).join('')}</div><button class="link" data-act="reset">Apagar progresso e recomeçar</button>`;
+  }else h=`<div class="grid2">${UPS.map(upHTML).join('')}</div>${pupsHTML()}<button class="link" data-act="reset">Apagar progresso e recomeçar</button>`;
   $('#sbody').innerHTML=h;updateTop();if(SH==='bat')batBind();
 }
 let lastCostScan=0;
@@ -893,13 +988,13 @@ function updateTop(force=false){
 
 // ===== ABRIR PACOTE: rasgar, revelar uma carta por vez, resumo =====
 function roll(p,lucky){
-  const w=p.w.map((x,k)=>x*Math.pow(1+.035*(S.up.luck+(lucky?3:0)),k));
+  const w=p.w.map((x,k)=>x*Math.pow(1+.035*(pl(p,'luck')+(lucky?3:0)),k));
   let t=Math.random()*w.reduce((a,b)=>a+b,0),k=0;
   while(k<w.length-1&&t>=w[k]){t-=w[k];k++}
   const pl=packCards(p).filter(c=>c.r===k);
   return pl[Math.floor(Math.random()*pl.length)];
 }
-function rollFoil(lucky){const m=(1+.035*S.up.luck)*(1+.12*S.up.foil)*(lucky?2:1),r=Math.random(),pp=Math.min(.001*m,.01),pb=Math.min(.005*m,.05);return r<pp?2:r<pp+pb?1:0}
+function rollFoil(p,lucky){const m=(1+.035*pl(p,'luck'))*(1+.12*pl(p,'foil'))*(lucky?2:1),r=Math.random(),pp=Math.min(.001*m,.01),pb=Math.min(.005*m,.05);return r<pp?2:r<pp+pb?1:0}
 function sparks(host,n,col){if(!host)return;for(let i=0;i<n;i++){const a=Math.random()*6.283,d=70+Math.random()*140,e=document.createElement('i');e.className='sp';e.textContent='✦';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--s:${.6+Math.random()*1.1};color:${col}`;host.appendChild(e);setTimeout(()=>e.remove(),1100)}}
 function otick(){if(!OS||OS.ph!=='face'||!OS.st)return;const cd=$('#ocard');if(cd)step(OS.st,cd);OS.st.raf=requestAnimationFrame(otick)}
 let OS=null,px=null,py=0,ld=0,AUTO_ROLL=false,AUTO_PACK=null;
@@ -1063,7 +1158,12 @@ const isLead=c=>!!LEAD[bn(c.id)];
 const RZ=['Ayrá','Arauta da Realidade'];
 let D=null;
 let BATTLE_MODE='pve',PVP_DECKS=[S.dk||0,S.dk||0];
-let ONLINE_DECK=S.dk||0;
+let ONLINE_DECK=S.dk||0,ONLINE_CYCLE=0;
+const PVP_CYCLES={1:['lendas'],2:['lendas','liga-delta']};
+const pvpCycleName=c=>c===1?'Ciclo 1 (Lendas do Sinestesia)':c===2?'Ciclo 2 (Lendas do Sinestesia + A Liga Delta)':'';
+const pvpCardSet=id=>{const c=BY[id];if(!c)return null;const b=c.base||c.id;return Object.keys(PACK_SETS).find(k=>PACK_SETS[k].some(x=>x.id===b))||null};
+function pvpDeckCycleOk(d,cycle){const allow=PVP_CYCLES[cycle];if(!allow||!d||!Array.isArray(d.ids))return false;return[d.lead,...d.ids].every(id=>allow.includes(pvpCardSet(id)))}
+const pvpLocalDeckCycleOk=(i,cycle)=>{const d=pvpDeckData(i);return !!d&&pvpDeckCycleOk(d,cycle)};
 let RT={client:null,channel:null,role:'',room:'',peerId:'',guestId:'',status:'',seq:0,decks:null,applying:0};
 const dSide=side=>side?D.e:D.p;
 const dLead=side=>D.mode==='pvp'?dSide(side).lead:side===0?D.lead:null;
@@ -1108,7 +1208,7 @@ const dAdj=u=>{const f=dAlive(u.side?D.e:D.p),i=f.indexOf(u);return i<0?[]:[f[i-
 const dValidDeck=i=>{const d=S.decks[i];return !!(d&&d.lead&&S.owned[d.lead]&&BY[d.lead]&&LEAD[bn(d.lead)]&&d.ids.filter(id=>BY[id]&&!isLead(BY[id])).length===15)};
 const dDeckLabel=(d,i)=>`${d.n} · ${d.lead&&BY[d.lead]?bn(d.lead):'sem líder'} · ${d.ids.filter(id=>BY[id]&&!isLead(BY[id])).length}/15`;
 const dDeckOptions=(slot,selected)=>{const first=S.decks.findIndex((_,i)=>dValidDeck(i)),chosen=dValidDeck(selected)?selected:first;return S.decks.map((d,i)=>`<option value="${i}" ${i===chosen?'selected':''} ${dValidDeck(i)?'':'disabled'}>${esc(dDeckLabel(d,i))}</option>`).join('')};
-const batHTML=()=>`<div class="lrow"><button data-act="bmode" data-mode="pve" ${BATTLE_MODE==='pve'?'disabled':''}>⚔️ Campanha</button><button data-act="bmode" data-mode="pvp" ${BATTLE_MODE==='pvp'?'disabled':''}>🆚 PvP local</button><button data-act="bmode" data-mode="online" ${BATTLE_MODE==='online'?'disabled':''}>🌐 PvP online</button></div>${BATTLE_MODE==='pve'?`<details class="how"><summary>Como jogar</summary><p class="hint">Duelo de cartas: o líder do baralho ativo (monte em Baralhos) define o PV e a ES inicial. Jogue cartas do seu baralho de 15 gastando mana ◆, depois toque numa carta sua pronta e no alvo. Só dá para atacar o herói inimigo quando o campo dele estiver vazio.</p></details><div class="lrow dfr"><span class="hint">Dificuldade:</span>${Object.entries(DIFFS).map(([k,d])=>`<button data-act="diff" data-d="${k}" ${dDiff()===d?'disabled':''}>${d.n}</button>`).join('')}</div>${dkBar()}`:BATTLE_MODE==='pvp'?`<div class="panel pvp-setup"><b>Duelo local · escolha os baralhos</b><label>Jogador 1<select id="pvpDeck0">${dDeckOptions(0,PVP_DECKS[0])}</select></label><label>Jogador 2<select id="pvpDeck1">${dDeckOptions(1,PVP_DECKS[1])}</select></label><button data-act="pstart" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Iniciar duelo</button><p>Os dois jogadores usam baralhos da coleção deste aparelho, com líderes e poderes. A cada turno, a mana aumenta; cartas recém-jogadas só atacam no turno seguinte. Ataque o líder quando o campo adversário estiver vazio. Ao trocar de turno, a mão fica escondida até o outro jogador confirmar.</p></div>`:`<div class="panel pvp-online"><b>Duelo online · convide outra pessoa</b><label>Seu baralho<select id="pvpOnlineDeck">${dDeckOptions(0,ONLINE_DECK)}</select></label><div class="lrow"><button data-act="pvpHost" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Criar sala</button><input id="pvpRoom" maxlength="12" placeholder="CÓDIGO DA SALA" aria-label="Código da sala"><button data-act="pvpJoin" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Entrar</button></div><div id="pvpOnlineStatus"></div><p>Ambos precisam abrir esta versão do jogo com internet. Compartilhe o código da sala com seu adversário. As cartas da coleção e os salvamentos continuam separados por aparelho.</p></div>`}<div class="bhead"><b id="bst"></b><span>${BATTLE_MODE==='pve'?`<button data-act="bback">−1 fase</button> <button data-act="drestart">Reiniciar</button>`:''}</span></div><div id="duel"></div>`;
+const batHTML=()=>`<div class="lrow"><button data-act="bmode" data-mode="pve" ${BATTLE_MODE==='pve'?'disabled':''}>⚔️ Campanha</button><button data-act="bmode" data-mode="pvp" ${BATTLE_MODE==='pvp'?'disabled':''}>🆚 PvP local</button><button data-act="bmode" data-mode="online" ${BATTLE_MODE==='online'?'disabled':''}>🌐 PvP online</button></div>${BATTLE_MODE==='pve'?`<details class="how"><summary>Como jogar</summary><p class="hint">Duelo de cartas: o líder do baralho ativo (monte em Baralhos) define o PV e a ES inicial. Jogue cartas do seu baralho de 15 gastando mana ◆, depois toque numa carta sua pronta e no alvo. Só dá para atacar o herói inimigo quando o campo dele estiver vazio.</p></details><div class="lrow dfr"><span class="hint">Dificuldade:</span>${Object.entries(DIFFS).map(([k,d])=>`<button data-act="diff" data-d="${k}" ${dDiff()===d?'disabled':''}>${d.n}</button>`).join('')}</div>${dkBar()}`:BATTLE_MODE==='pvp'?`<div class="panel pvp-setup"><b>Duelo local · escolha os baralhos</b><label>Jogador 1<select id="pvpDeck0">${dDeckOptions(0,PVP_DECKS[0])}</select></label><label>Jogador 2<select id="pvpDeck1">${dDeckOptions(1,PVP_DECKS[1])}</select></label><button data-act="pstart" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Iniciar duelo</button><p>Os dois jogadores usam baralhos da coleção deste aparelho, com líderes e poderes. A cada turno, a mana aumenta; cartas recém-jogadas só atacam no turno seguinte. Ataque o líder quando o campo adversário estiver vazio. Ao trocar de turno, a mão fica escondida até o outro jogador confirmar.</p></div>`:`<div class="panel pvp-online"><b>Duelo online · convide outra pessoa</b><label>Ciclo (obrigatório)<select id="pvpOnlineCycle"><option value="" ${ONLINE_CYCLE?'':'selected'}>Escolha o ciclo…</option><option value="1" ${ONLINE_CYCLE===1?'selected':''}>Ciclo 1 — só Lendas do Sinestesia</option><option value="2" ${ONLINE_CYCLE===2?'selected':''}>Ciclo 2 — Lendas do Sinestesia + A Liga Delta</option></select></label><label>Seu baralho<select id="pvpOnlineDeck">${dDeckOptions(0,ONLINE_DECK)}</select></label><div class="lrow"><button data-act="pvpHost" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Criar sala</button><input id="pvpRoom" maxlength="12" placeholder="CÓDIGO DA SALA" aria-label="Código da sala"><button data-act="pvpJoin" ${S.decks.some((_,i)=>dValidDeck(i))?'':'disabled'}>Entrar</button></div><div id="pvpOnlineStatus"></div><p>Ambos precisam abrir esta versão do jogo com internet. Compartilhe o código da sala com seu adversário. As cartas da coleção e os salvamentos continuam separados por aparelho.</p></div>`}<div class="bhead"><b id="bst"></b><span>${BATTLE_MODE==='pve'?`<button data-act="bback">−1 fase</button> <button data-act="drestart">Reiniciar</button>`:''}</span></div><div id="duel"></div>`;
 function batAutoLbl(){}
 function batBind(){if(!D){if(BATTLE_MODE==='pvp')pvpSetupRender();else if(BATTLE_MODE==='online')pvpOnlineRender();else dStart()}else dRender()}
 
@@ -1244,15 +1344,21 @@ function dStartOnline(deck0,deck1){
   $('#bst').textContent='PvP online';dTurn(0);
 }
 async function pvpHostRoom(){
-  const i=+($('#pvpOnlineDeck')||{}).value,deck=pvpDeckData(i);if(!deck)return msg('Escolha um baralho válido com líder e 15 cartas.');
-  await pvpDisconnect(false);RT={client:null,channel:null,role:'host',room:pvpNewCode(),peerId:pvpPeerId(),guestId:'',status:'Conectando à sala…',seq:0,decks:[deck,null],applying:0};pvpOnlineRender();
+  const i=+($('#pvpOnlineDeck')||{}).value,deck=pvpDeckData(i),cycle=+($('#pvpOnlineCycle')||{}).value||0;
+  if(!PVP_CYCLES[cycle])return msg('Escolha o Ciclo (1 ou 2) antes de criar a sala.');ONLINE_CYCLE=cycle;
+  if(!deck)return msg('Escolha um baralho válido com líder e 15 cartas.');
+  if(!pvpDeckCycleOk(deck,cycle))return msg('Esse baralho tem cartas que não são permitidas no '+pvpCycleName(cycle)+'.');
+  await pvpDisconnect(false);RT={cycle,client:null,channel:null,role:'host',room:pvpNewCode(),peerId:pvpPeerId(),guestId:'',status:'Conectando à sala…',seq:0,decks:[deck,null],applying:0};pvpOnlineRender();
   try{await pvpConnect('host',RT.room);RT.status='Aguardando adversário';pvpOnlineRender()}catch(e){const m=errPt(e);await pvpDisconnect(false);RT.status=m;pvpOnlineRender()}
 }
 async function pvpJoinRoom(){
-  const i=+($('#pvpOnlineDeck')||{}).value,deck=pvpDeckData(i),room=String(($('#pvpRoom')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(!deck)return msg('Escolha um baralho válido com líder e 15 cartas.');if(room.length!==10)return msg('O código da sala deve ter 10 caracteres.');
-  await pvpDisconnect(false);RT={client:null,channel:null,role:'guest',room,peerId:pvpPeerId(),guestId:'',status:'Conectando à sala…',seq:0,decks:null,applying:0};pvpOnlineRender();
-  try{await pvpConnect('guest',room);RT.status='Aguardando resposta do anfitrião';pvpOnlineRender();const joinMsg={type:'join',peerId:RT.peerId,deck};await pvpSend(joinMsg);let tries=1;const timer=RT.joinTimer=setInterval(()=>{if(RT.joinTimer!==timer||RT.role!=='guest'||!RT.channel){clearInterval(timer);return}if(tries>=10){clearInterval(timer);RT.status='O anfitrião não respondeu. Confira o código e peça para ele manter a sala aberta nesta tela; depois tente entrar de novo.';pvpOnlineRender();return}tries++;pvpSend(joinMsg).catch(()=>{})},2000)}catch(e){const m=errPt(e);await pvpDisconnect(false);RT.status=m;pvpOnlineRender()}
+  const i=+($('#pvpOnlineDeck')||{}).value,deck=pvpDeckData(i),cycle=+($('#pvpOnlineCycle')||{}).value||0,room=String(($('#pvpRoom')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!PVP_CYCLES[cycle])return msg('Escolha o Ciclo (1 ou 2) antes de entrar na sala.');ONLINE_CYCLE=cycle;
+  if(!deck)return msg('Escolha um baralho válido com líder e 15 cartas.');
+  if(!pvpDeckCycleOk(deck,cycle))return msg('Esse baralho tem cartas que não são permitidas no '+pvpCycleName(cycle)+'.');
+  if(room.length!==10)return msg('O código da sala deve ter 10 caracteres.');
+  await pvpDisconnect(false);RT={cycle,client:null,channel:null,role:'guest',room,peerId:pvpPeerId(),guestId:'',status:'Conectando à sala…',seq:0,decks:null,applying:0};pvpOnlineRender();
+  try{await pvpConnect('guest',room);RT.status='Aguardando resposta do anfitrião';pvpOnlineRender();const joinMsg={type:'join',peerId:RT.peerId,deck,cycle};await pvpSend(joinMsg);let tries=1;const timer=RT.joinTimer=setInterval(()=>{if(RT.joinTimer!==timer||RT.role!=='guest'||!RT.channel){clearInterval(timer);return}if(tries>=10){clearInterval(timer);RT.status='O anfitrião não respondeu. Confira o código e peça para ele manter a sala aberta nesta tela; depois tente entrar de novo.';pvpOnlineRender();return}tries++;pvpSend(joinMsg).catch(()=>{})},2000)}catch(e){const m=errPt(e);await pvpDisconnect(false);RT.status=m;pvpOnlineRender()}
 }
 async function pvpReceive(m){
   if(!m||typeof m!=='object')return;
@@ -1260,7 +1366,9 @@ async function pvpReceive(m){
     if(m.type==='join'){
       if(RT.guestId&&m.peerId===RT.guestId){if(D&&D.online)await pvpBroadcastState('start');return}
       if(RT.guestId||RT.status!=='Aguardando adversário'){await pvpSend({type:'busy',to:m.peerId});return}
+      if(+m.cycle!==RT.cycle){await pvpSend({type:'bad-cycle',to:m.peerId,cycle:RT.cycle});return}
       if(!pvpDeckDataValid(m.deck)){await pvpSend({type:'bad-deck',to:m.peerId});return}
+      if(!pvpDeckCycleOk(m.deck,RT.cycle)){await pvpSend({type:'bad-deck-cycle',to:m.peerId,cycle:RT.cycle});return}
       RT.guestId=m.peerId;RT.decks[1]=m.deck;RT.status='Partida iniciada';dStartOnline(RT.decks[0],RT.decks[1]);await pvpBroadcastState('start');return;
     }
     if(m.type==='leave'&&m.peerId===RT.guestId){RT.guestId='';RT.decks[1]=null;D=null;RT.status='Aguardando adversário';pvpOnlineRender();return}
@@ -1270,6 +1378,8 @@ async function pvpReceive(m){
   if(RT.role!=='guest'||(m.to&&m.to!==RT.peerId))return;
   clearInterval(RT.joinTimer);
   if(m.type==='busy'){RT.status='Essa sala já está ocupada.';pvpOnlineRender();return}
+  if(m.type==='bad-cycle'){clearInterval(RT.joinTimer);RT.status='Essa sala é do '+pvpCycleName(+m.cycle)+'. Escolha o mesmo ciclo para entrar.';pvpOnlineRender();return}
+  if(m.type==='bad-deck-cycle'){clearInterval(RT.joinTimer);RT.status='Seu baralho tem cartas que não são permitidas no '+pvpCycleName(+m.cycle)+'.';pvpOnlineRender();return}
   if(m.type==='bad-deck'){RT.status='O baralho enviado não é válido. Confira líder e 15 cartas.';pvpOnlineRender();return}
   if(m.type==='leave'){D=null;RT.status='O anfitrião encerrou a sala.';pvpOnlineRender();return}
   if((m.type==='start'||m.type==='state')&&m.state&&m.seq>RT.seq){D=m.state;D.online=1;D.localSide=1;D.pass=0;D.sel=null;D.busy=0;RT.seq=m.seq;RT.pending=0;RT.status='Partida online';pvpRestoreArt(D);dRender()}
@@ -1477,6 +1587,88 @@ function dTc(u,o){
   return `<div class="tc ${o.foe===undefined?(u.side?'foe':''):(o.foe?'foe':'')} ${o.cls||''}${u.r===5?' rainbow':''}" id="${o.id||''}" style="--rc:${o.foe===undefined?(u.side?'#ff6b8a':R[u.r].col):(o.foe?'#ff6b8a':R[u.r].col)}" ${o.at||''}>${o.cost===0?'':`<span class="cost">${u.cost}</span>`}<div class="up${u.fg?' hero':''}${u.ak==='Bioboy & Biogirl'&&u.art&&!u.fg?' bb':''}">${u.ak==='Bioboy & Biogirl'&&u.art&&!u.fg?`${bbArt(u)}<span class="bbf">${u.form==='girl'?'♀':'♂'}</span>`:u.fg?`<div class="bgw"><img src="${u.art}" alt="" loading="lazy" decoding="async"></div><img class="pop" src="${u.fg}" alt="" loading="lazy" decoding="async">`:u.art?`<img src="${u.art}" alt="" loading="lazy" decoding="async">`:u.g}</div><b>${u.n}</b>${u.arena?'<span class="atk" style="left:50%;transform:translateX(-50%)">🏟 Arena</span>':`<span class="atk">⚔${dF(o.live?dAtk(u):u.atk)}</span><span class="hp">❤${dF(u.hp)}</span>${o.live&&dLB(u)>0?`<span class="hbf">⚔ +${Math.round(dLB(u)*100)}%</span>`:''}`}${u.sh>0&&!u.dead?`<span class="shd">🛡${dF(u.sh)}</span>`:''}${u.stun>0&&!u.dead?'<span class="stn" title="Atordoado">💫</span>':''}${o.zz?'<span class="zz">💤</span>':''}${u.poisonTurns>0&&!u.dead?'<span title="Envenenado" style="position:absolute;top:2px;right:4px;font-size:.8rem;pointer-events:none">☣️</span>':''}</div>`;
 }
 const supPanel=(u,ab,mine)=>{const on=mine&&!u.acted,bt=n=>{const cost=n===1?(ab.s1es||2):(ab.s2es||2);return `<button data-act="dsup" data-n="${n}" ${on||D.supSk===n?'':'disabled'}>${D.supSk===n?'✖ Cancelar':'✨ Perícia '+n+' · '+cost+' ES'}</button>`};return `<section class="battle-abilities"><b>${u.n} · Suporte · ${ab.pv} PV</b><p><strong>Ataque básico:</strong> ${ab.basic}</p>${ab.s1?`<p><strong>Perícia 1 (${ab.s1es||2} ES):</strong> ${ab.s1}</p>${ab.s2?`<p><strong>Perícia 2 (${ab.s2es||2} ES):</strong> ${ab.s2}</p>`:''}${ab.s2||u.ak==='SuperVocê'?`<div class="lrow">${bt(1)}${ab.s2?bt(2):''}</div>`:`<button data-act="dskill" ${on?'':'disabled'}>✨ Usar perícia · ${ab.s1es||2} ES</button>`}`:''}${ab.p1?`<p><strong>Passiva 1:</strong> ${ab.p1}</p>`:''}${ab.p2?`<p><strong>Passiva 2:</strong> ${ab.p2}</p>`:''}${ab.passives?ab.passives.map((x,i)=>`<p><strong>Passiva ${i+1}:</strong> ${x}</p>`).join(''):''}</section>`};
+/* ===== PAINEL DE BUFFS (duplo clique/toque numa carta em campo) ===== */
+function dBuffList(u){
+  const B={pct:[],flat:[],hp:[],crit:[],cdmg:[],heal:[],fx:[]};
+  if(!u||!D||u.arena)return B;
+  const add=(k,l,v)=>{if(v)B[k].push({l,v})};
+  const sd=u.side,S0=dSide(sd),L=dLead(sd),nm=bn(u.cid||u.id)||dUnitName(u),allies=dAlive(S0),foes=dAlive(dSide(1-sd));
+  const on=!(sd&&D.mode!=='pvp');
+  if(on){
+    if(L){const k=L.k,ln='Líder '+k+': ',her=hasTag('Heróis',nm);
+      if(k==='Hipergirl'&&S0.lp<=S0.max/2)add('pct',ln+'PV do líder ≤ 50%',.4);
+      if(k==='Hiperman'&&her)add('pct',ln+Math.min(4,allies.length)+' aliado(s) em campo',.1*Math.min(4,allies.length));
+      if(k==='Vitor Addams (criança)')add('pct',ln+'Escola Sinestesia em campo',.02*allies.filter(x=>hasTag('Escola Sinestesia',bn(x.cid||x.id)||dUnitName(x))).length);
+      if(k==='Jerônimo Addams'&&her){add('pct',ln+'Heróis',.2);if(hasTag('Escola Sinestesia',nm))add('pct',ln+'Heróis da Escola Sinestesia',.1)}
+      if(k==='Sol'){
+        if(her)add('pct',ln+'Heróis',.3);
+        if(her&&hasTag('Escola H',nm))add('pct',ln+'Escola H',.1);
+        add('pct',ln+foes.length+' inimigo(s) em campo',.05*foes.length);
+        const pw=allies.some(x=>bn(x.cid||x.id)==='Estrela Polar')||(allies.length===4&&allies.every(x=>hasTag('Liga Delta',bn(x.cid||x.id)||dUnitName(x))));
+        add('pct',ln+'bônus global'+(pw?' reforçado':''),(pw?.6:.4)-.1*Math.max(0,allies.length-1));
+      }
+    }
+    const ar=S0.arena,A=ar&&ARENAS[ar.ak],bnm=bn(u.cid||u.id);
+    if(A){if(!A.tag||hasTag(A.tag,bnm))add('pct','Arena '+ar.ak,A.pct);(A.extra||[]).forEach(x=>{if(hasTag(x.tag,bnm))add('pct','Arena '+ar.ak+' ('+x.tag+')',x.pct||0)})}
+    if(u.ak==='Vulto'){add('pct','Vulto: acúmulos',u.vultoAtkPct||0);if(u.superVulto)add('pct','Vulto: super',.2)}
+    const star=allies.find(x=>x.ak==='Estrela Polar'),liga=allies.filter(x=>hasTag('Liga Delta',dUnitName(x))).length;
+    if(u.ak==='Estrela Polar'){if(star&&u.id===star.id){add('pct','Estrela Polar: acúmulos',star.starPolarPct||0);if(star.hp<star.max/2)add('pct','Estrela Polar: PV < 50%',.5);if(L?.k==='Sol')add('pct','Estrela Polar: líder Sol',.2);if(liga>=2)add('pct','Estrela Polar: 2+ da Liga Delta',.1)}}
+    else{add('pct','Estrela Polar: bônus aos aliados',S0.starPolarAllyPct||0);if(star&&liga>=2&&hasTag('Liga Delta',dUnitName(u)))add('pct','Liga Delta com Estrela Polar',.05)}
+    if(u.superVoceStacks)add('pct','SuperVocê: '+Math.min(3,u.superVoceStacks)+' acúmulo(s) de +30%',Math.min(3,u.superVoceStacks)*.3);
+    if(u.superVoceBuffUntil>D.n)add('pct','SuperVocê: reforço do turno',u.superVoceBuff||.6);
+    if(u.frostBonus)add('pct','Frostmann: '+Math.round(u.frostBonus/.1)+'× +10%',u.frostBonus);
+    const off=dLB(u)+dArenaB(u)+(u.ak==='Vulto'?(u.vultoAtkPct||0)+(u.superVulto?.2:0):0)+dStarPolarBonus(u)+(u.superVoceStacks?Math.min(3,u.superVoceStacks)*.3:0)+(u.superVoceBuffUntil>D.n?(u.superVoceBuff||.6):0)+(u.frostBonus||0);
+    const mine=B.pct.reduce((t,x)=>t+x.v,0);if(Math.abs(off-mine)>.0005)add('pct','Outros bônus',off-mine);
+    if(u.goroBonusUntil>D.n)add('flat','Goro',u.goroBonus||0);
+    if(S0.lz)add('flat','Luiza: ataques acumulados',S0.lz);
+    if(allies.some(x=>x.ak==='Sparkle'))add('flat','Sparkle: dinheiro',S0.money||0);
+    add('flat','Biologia em campo (Bioboy & Biogirl)',dBioBonus(u));
+    const ac=dArenaCrit(u);add('crit','Arena',ac.c);add('cdmg','Arena',ac.d);
+    if(L?.k==='Sol'&&hasTag('Heróis',nm)){add('heal','Líder Sol',.1);if(hasTag('Escola H',nm))add('heal','Líder Sol (Escola H)',.1)}
+    if(A&&A.extra)A.extra.forEach(x=>{if(x.heal&&hasTag(x.tag,nm))add('heal','Arena '+ar.ak,x.heal)});
+  }
+  (u.supB||[]).forEach(x=>{if(x.atk)add('flat',x.n+': perícia 1',x.atk);if(x.hp)add('hp',x.n+': perícia 2',x.hp)});
+  add('flat','Peso (redução)',-dWeight(u));
+  add('crit','Bônus acumulado',u.critBonus||0);add('cdmg','Bônus acumulado',u.critDamageBonus||0);
+  add('crit','Redução',-(u.critChanceDown||0));add('cdmg','Redução',-(u.critDamageDown||0));
+  if(u.sh>0)B.fx.push('🛡 Escudo: '+dF(u.sh));
+  if(u.stun>0)B.fx.push('💫 Atordoado');
+  if(u.poisonTurns>0)B.fx.push('☣️ Veneno: '+dF(u.poison||0)+' por turno ('+u.poisonTurns+' turno(s))');
+  if(u.tauntLeft>0&&u.taunt)B.fx.push('🎯 Provocação ('+u.tauntLeft+')');
+  if(u.confused)B.fx.push('🌀 Confuso');
+  if(u.weakenNext>0)B.fx.push('⬇ Próximo ataque −'+dF(u.weakenNext));
+  if(u.reflect)B.fx.push('🔁 Reflete dano'+(u.reflectLeft?' ('+u.reflectLeft+')':''));
+  if(u.restrainedUntil>D.n)B.fx.push('⛓ Preso');
+  if(u.ak==='Vulto'&&(u.vultoDodgePct||u.superVulto))B.fx.push('💨 Esquiva '+Math.round(Math.min(.8,.2+(u.vultoDodgePct||0)+(u.superVulto?.1:0))*100)+'%');
+  return B;
+}
+const bfxP=v=>(v>0?'+':'')+(Math.round(v*1000)/10).toString().replace('.',',')+'%',bfxN=v=>(v>0?'+':'')+dF(v);
+function bfxClose(){const o=document.getElementById('bfx');if(o)o.remove()}
+function dBuffShow(id){
+  try{
+    const u=dUnit(id);if(!u)return;bfxClose();
+    const B=dBuffList(u),sec=(t,a,f,lab)=>{if(!a.length)return'';const tot=a.reduce((n,x)=>n+x.v,0);return `<h4>${t}</h4><ul>${a.map(x=>`<li><span>${esc(x.l)}</span><b class="${x.v<0?'dn':'up'}">${f(x.v)}</b></li>`).join('')}${a.length>1?`<li class="t"><span>${lab}</span><b class="${tot<0?'dn':'up'}">${f(tot)}</b></li>`:''}</ul>`};
+    const body=sec('⚔ Dano (%) · se empilham',B.pct,bfxP,'Total empilhado')+sec('⚔ Dano fixo',B.flat,bfxN,'Total')+sec('❤ Vida máxima (permanente)',B.hp,bfxN,'Total')+sec('🎯 Chance de crítico',B.crit,bfxP,'Total')+sec('💥 Dano crítico',B.cdmg,bfxP,'Total')+sec('💚 Cura recebida',B.heal,bfxP,'Total')+(B.fx.length?`<h4>Efeitos</h4><ul>${B.fx.map(x=>`<li><span>${esc(x)}</span></li>`).join('')}</ul>`:'');
+    const A=u.arena?ARENAS[u.ak||u.n]:null;
+    const o=document.createElement('div');o.id='bfx';o.className='bfx';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+    o.innerHTML=`<div class="bfx-box" style="--rc:${u.side?'#ff6b8a':R[u.r]?R[u.r].col:'#6fa8ff'}"><div class="bfx-h"><div><b>${esc(u.n)}</b><small>${u.arena?'🏟 Arena':`⚔ ${dF(dAtk(u))} (base ${dF((u.atk||0)-(u.supB||[]).reduce((t,x)=>t+(x.atk||0),0))}) · ❤ ${dF(u.hp)}/${dF(u.max)}`}</small></div><button class="bfx-x" aria-label="Fechar">✕</button></div>${A&&A.passive?`<p class="bfx-n">${esc(A.passive)}</p>`:''}${body||(u.arena?'':'<p class="bfx-n">Nenhum buff ou efeito ativo nesta carta.</p>')}${u.side&&D.mode!=='pvp'?'<p class="bfx-n">Inimigos da campanha não recebem bônus de líder ou arena.</p>':''}</div>`;
+    o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.bfx-x'))bfxClose()});
+    document.body.appendChild(o);o.querySelector('.bfx-x').focus();
+  }catch(err){console.error(err);msg('Não foi possível mostrar os buffs.')}
+}
+(()=>{
+  let last={id:'',t:0},pend=null,byp=false;
+  document.addEventListener('click',ev=>{
+    if(byp||!D)return;
+    const el=ev.target.closest&&ev.target.closest('#duel .tc[id]');
+    if(!el||!dUnit(el.id))return;
+    const now=Date.now(),id=el.id;
+    if(last.id===id&&now-last.t<350){last={id:'',t:0};if(pend){clearTimeout(pend);pend=null}ev.stopImmediatePropagation();ev.preventDefault();dBuffShow(id);return}
+    last={id,t:now};
+    if(el.matches('[data-act="dtgt"]')){ev.stopImmediatePropagation();if(pend)clearTimeout(pend);pend=setTimeout(()=>{pend=null;const t=document.getElementById(id);if(!t||!D)return;byp=true;try{t.click()}finally{byp=false}},280)}
+  },true);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')bfxClose()});
+})();
 function dRender(){
   const root=$('#duel');if(!root||!D)return;
   const activeSide=D.mode==='pvp'?(D.online?D.localSide:D.turn):0,P=dSide(activeSide),E=dSide(1-activeSide),mine=dMine();
@@ -1692,7 +1884,7 @@ const act={
     if(u.side!==D.turn)return;
     const P=dSide(D.turn),L=dLead(D.turn);
     if(D.healMode){const h=dHeal(u,u.max-u.hp);D.healMode=0;L.used=1;u.hp+=h;dFx(u.id,'+'+dF(h),'sp');sfx.buy();D.log=P.name+' curou '+u.n+'.';dRender();return}
-    if(D.supSk){const a=dUnit(D.sel),ab=a&&ATTACKS[a.ak];if(a&&a.ak==='SuperVocê'&&D.supSk===2){if(!dSpendSkill(D.turn,ab.s2es||4,a)){D.supSk=0;return msg('ES insuficiente.')}u.acted=0;u.sick=0;u.usedSkill=0;a.acted=1;a.usedSkill=1;D.log='SuperVocê concedeu um turno adicional a '+u.n+'.';D.supSk=0;D.sel=null;return dAfter()}if(!a||a.dead||a.acted||!ab||!ab.s1||P.mana<2){D.supSk=0;return dRender()}const big=a.ak==='Arauta da Realidade';P.mana-=2;if(D.supSk===1){const v=big?10:2;u.atk+=v;D.log=a.n+' deu +'+v+' de dano a '+u.n+'.'}else{const v=big?25:8;u.max+=v;u.hp+=v;D.log=a.n+' deu +'+v+' de vida máxima a '+u.n+'.'}dFx(u.id,'⬆','sp');sfx.buff();a.acted=1;a.usedSkill=1;D.supSk=0;D.sel=null;return dAfter()}
+    if(D.supSk){const a=dUnit(D.sel),ab=a&&ATTACKS[a.ak];if(a&&a.ak==='SuperVocê'&&D.supSk===2){if(!dSpendSkill(D.turn,ab.s2es||4,a)){D.supSk=0;return msg('ES insuficiente.')}u.acted=0;u.sick=0;u.usedSkill=0;a.acted=1;a.usedSkill=1;D.log='SuperVocê concedeu um turno adicional a '+u.n+'.';D.supSk=0;D.sel=null;return dAfter()}if(!a||a.dead||a.acted||!ab||!ab.s1||P.mana<2){D.supSk=0;return dRender()}const big=a.ak==='Arauta da Realidade';P.mana-=2;if(D.supSk===1){const v=big?10:2;u.atk+=v;(u.supB=u.supB||[]).push({n:a.n,atk:v});D.log=a.n+' deu +'+v+' de dano a '+u.n+'.'}else{const v=big?25:8;u.max+=v;u.hp+=v;(u.supB=u.supB||[]).push({n:a.n,hp:v});D.log=a.n+' deu +'+v+' de vida máxima a '+u.n+'.'}dFx(u.id,'⬆','sp');sfx.buff();a.acted=1;a.usedSkill=1;D.supSk=0;D.sel=null;return dAfter()}
     if(u.sick){sfx.err();return msg(u.n+' acabou de entrar e só ataca no próximo turno.')}
     if(u.acted){sfx.err();return msg(u.n+' já atacou neste turno.')}
     D.sel=D.sel===u.id?null:u.id;D.skillMode=0;D.supSk=0;sfx.click();dRender();
@@ -1743,7 +1935,7 @@ const act={
     AUTO_PACK=+e.dataset.i;
     S.coins-=cost;
     const lucky=(S.packs+1)%LUCKY===0;S.packs++;
-    const packSize=3+S.up.pack,base=Array.from({length:packSize},()=>roll(p,lucky)),fv=base.map(()=>rollFoil(lucky));
+    const packSize=3+pl(p,'pack'),base=Array.from({length:packSize},()=>roll(p,lucky)),fv=base.map(()=>rollFoil(p,lucky));
     const got=base.map((c,i)=>fv[i]?BY[c.id+(fv[i]===1?'b':'p')]:c);
     const seenP={},fr=got.map(c=>{const f=!S.owned[c.id]&&!seenP[c.id];seenP[c.id]=1;return f}),fn=got.map(()=>false);
     got.forEach(c=>{S.owned[c.id]=(S.owned[c.id]||0)+1});
@@ -1755,6 +1947,7 @@ const act={
   oskip(){if(!OS||!S.up.skipall||(OS.ph!=='back'&&OS.ph!=='face'))return;sfx.click();clearTimeout(OS.autoTimer);summary()},
   sheet(e){sfx.whoosh(.5);SH=e.dataset.s;$('#sheet').hidden=false;renderSheet()},
   sclose(){sfx.click();SH=null;$('#sheet').hidden=true},
+  pup(e){const i=+e.dataset.i,u=PUPS.find(x=>x.k===e.dataset.k),c=puCost(i,u);if(!PACKS[i]||!PACKS[i].on||S.coins<c||pl(i,u.k)>=u.max){sfx.err();return}S.coins-=c;(S.pu[i]=S.pu[i]||{})[u.k]=pl(i,u.k)+1;sfx.buy();renderAll();save()},
   up(e){const u=UPS.find(x=>x.k===e.dataset.k),c=upCost(u);if(S.coins<c||S.up[u.k]>=u.max){sfx.err();return}S.coins-=c;S.up[u.k]++;sfx.buy();renderAll();save()},
   slot(){const c=slotCost(S.unlocked);if(S.coins<c){sfx.err();return}S.coins-=c;S.unlocked++;sfx.buy();renderAll();save()},
   eq(e){
