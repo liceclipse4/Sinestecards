@@ -1735,6 +1735,27 @@ function dStartPvp(i0,i1){
   $('#bst').textContent='PvP local';
   dTurn(0);
 }
+function dStartOnline(deck0,deck1){
+  if(D)clearTimeout(D.to);
+  const makeSide=(data,side)=>{
+    if(!pvpDeckDataValid(data))return null;
+    const lid=data.lead,lk=bn(lid),LD=LEAD[lk],lc=BY[lid],deck=data.ids.slice();
+    for(let j=deck.length-1;j>0;j--){const k=Math.random()*(j+1)|0;[deck[j],deck[k]]=[deck[k],deck[j]]}
+    const ai=lk==='Hipergirl'?deck.findIndex(id=>RZ.includes(bn(id))):-1,pv=ai>=0?180:LD.pv;
+    return{lp:pv,max:pv,mana:0,mmax:Math.max(0,LD.es-1),startES:LD.es,firstTurn:1,hand:[],deck,field:[],name:`Jogador ${side+1} · ${lc.n}`,g:lc.g,art:lc.art,fg:lc.fg,lead:{k:lk,used:0,buff:LD.buff||null},rez:[],money:0,lz:0,mgT:0,peekReady:0,peek:null,arena:null};
+  };
+  const p=makeSide(deck0,0),e=makeSide(deck1,1);
+  if(!p||!e)throw new Error('Cada jogador precisa de um líder e 15 cartas válidas.');
+  D={mode:'pvp',online:1,localSide:0,localSeat:0,p,e,turn:0,n:0,over:0,res:'',winner:null,busy:0,sel:null,uid:0,fx:[],vx:[],log:'',skillMode:0,to:0,leads:[p.lead,e.lead],supSk:0,rez:[],pick:0,healMode:0,st:1,sc:1,boss:0};
+  [p,e].forEach(s=>{for(let i=0;i<4;i++)dDraw(s)});
+  [p,e].forEach((s,side)=>{
+    dOpeningPassives(s,side);
+    const ai=s.lead.k==='Hipergirl'?s.deck.findIndex(id=>RZ.includes(bn(id))):-1;
+    if(ai>=0&&s.hand.length<7)s.hand.push(dMake(s.deck.splice(ai,1)[0],side));
+  });
+  $('#bst').textContent='PvP online';
+  dTurn(0);
+}
 const pvpCodeChars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const pvpPeerId=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
 function pvpNewCode(){const b=new Uint8Array(10);crypto.getRandomValues(b);return Array.from(b,x=>pvpCodeChars[x%pvpCodeChars.length]).join('')}
